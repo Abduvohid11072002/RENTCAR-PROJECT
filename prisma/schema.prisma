@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]  
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  INACTIVE
+  ACTIVE
+}
+
+enum UserRole {
+  USER
+  CLIENT
+  SUPERVISOR
+  ADMIN
+}
+
+enum CarStatus {
+  OK
+  BUSY
+}
+
+enum PaymentStatus {
+  OK
+  BAD
+}
+
+model User {
+  id        String     @id @default(uuid())
+  firstName String
+  lastName  String
+  age       Int
+  email     String     @unique
+  password  String
+  status    UserStatus @default(INACTIVE)
+  role      UserRole   @default(USER)
+  refresh   Refresh?
+  otp       Otp?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  payments    Payment[]
+  rentDetails RentDetails[]
+}
+
+model Refresh {
+  id        String   @id @default(uuid())
+  refresh   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Otp {
+  id        String   @id @default(uuid())
+  otp       String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Car {
+  id String @id @default(uuid())
+
+  brandId String
+  brand   Brand  @relation(fields: [brandId], references: [id])
+
+  modelId String
+  model   Model  @relation(fields: [modelId], references: [id])
+
+  colorId String
+  color   Color  @relation(fields: [colorId], references: [id])
+
+  carImages String[]
+
+  factoryDate DateTime
+
+  price Decimal
+
+  status CarStatus @default(OK)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rentDetails RentDetails[]
+  payments    Payment[]
+}
+
+model Model {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  cars Car[]
+}
+
+model Brand {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  cars Car[]
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  carId String
+  car   Car    @relation(fields: [carId], references: [id])
+
+  paymentNumber Int
+
+  status    PaymentStatus @default(BAD)
+  createdAt DateTime      @default(now())
+
+  RentDetails RentDetails[]
+}
+
+model Color {
+  id        String   @id @default(uuid())
+  color     String   @unique
+  createdAt DateTime @default(now())
+
+  cars Car[]
+}
+
+model RentDetails {
+  id          String   @id @default(uuid())
+  carId       String
+  car         Car      @relation(fields: [carId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  paymentId   String
+  payment     Payment  @relation(fields: [paymentId], references: [id])
+  total_price Decimal
+  start_date  DateTime
+  end_date    DateTime
+  createdAt   DateTime @default(now())
+}

@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://Nestjs_Prisma_owner:RDBUVfYx8v0n@ep-dark-snow-a1cb7p1a-pooler.ap-southeast-1.aws.neon.tech/RENTCAR-PROJECT?sslmode=require"
+    networks:
+      nestjs-net:
+
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: Nestjs_Prisma_owner
+      POSTGRES_PASSWORD: RDBUVfYx8v0n
+      POSTGRES_DB: RENTCAR-PROJECT
+      POSTGRES_HOST: ep-dark-snow-a1cb7p1a-pooler.ap-southeast-1.aws.neon.tech
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      nestjs-net:
+
+volumes:
+  postgres-data:
+
+networks:
+  
+ nestjs-net:
