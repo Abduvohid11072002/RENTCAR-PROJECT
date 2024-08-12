@@ -11,26 +11,26 @@ services:
       - .env
     depends_on:
       - db
-    environment:
-      DATABASE_URL: "postgresql://Nestjs_Prisma_owner:RDBUVfYx8v0n@ep-dark-snow-a1cb7p1a-pooler.ap-southeast-1.aws.neon.tech/RENTCAR-PROJECT?sslmode=require"
     networks:
       nestjs-net:
 
   db:
-    image: postgres:alpine
+    container_name: db
+    image: postgres:16
+    restart: always
     environment:
-      POSTGRES_USER: Nestjs_Prisma_owner
-      POSTGRES_PASSWORD: RDBUVfYx8v0n
-      POSTGRES_DB: RENTCAR-PROJECT
-      POSTGRES_HOST: ep-dark-snow-a1cb7p1a-pooler.ap-southeast-1.aws.neon.tech
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       nestjs-net:
 
 volumes:
-  postgres-data:
+  postgres-data: {}
 
 networks:
-  
- nestjs-net:
+  nestjs-net:
